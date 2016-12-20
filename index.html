@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en-us" ng-app="iSwitchApp">
+    <head>
+        <title>MAC Address device filter</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta charset="UTF-8">
+        <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />-->
+        <link rel="stylesheet" href="bootstrap3.2.0.min.css" />
+        <style>
+            html, body, input, select, textarea
+            {
+                font-size: 1.05em;
+            }
+        </style>
+        <!--<script src="//code.angularjs.org/1.5.0-rc.2/angular.min.js"></script>-->
+        <script src="angular1.5.0.min.js"></script>
+        <script type="text/javascript">
+            angular.module('iSwitchApp', [])
+            //.config(['$httpProvider', function($httpProvider) {
+            //    $httpProvider.defaults.headers.common['Authorization'] = "Basic bG9zZXI6cGFzc3dvcmQ=";
+            //}])
+            .controller("switchBoardController", ["$scope", "$http", function($scope, $http) {
+                $scope.deviceList = [];
+
+                $scope.switchOn = function (deviceId) {
+                    $http.get(`http://localhost/set/${deviceId}/on`).success(result => {}).error((data, status) => {});
+                }
+
+                $scope.switchOff = function (deviceId) {
+                    $http.get(`http://localhost/set/${deviceId}/off`).success(result => {}).error((data, status) => {});
+                }
+                
+                // $http.get("http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm", requestDeviceList()).success(result => {}).error((data, status) => {});
+
+                $http.get('http://localhost/list').success(function(result) {
+                    $scope.deviceList = eval(result);
+                })
+                .error(function(data, status) {
+                    // TODO: report error to some error message span
+                });
+            }]);
+
+            // Doc on params: https://docs.angularjs.org/api/ng/service/$http
+            // module.run(function($http) {
+            //     $http.defaults.headers.common.Authorization = 'Basic YmVlcDpib29w';
+            // });
+
+            function requestSetDevice(deviceId, online) {
+                return {
+                    // request.HTTPMethod = @"GET";
+                    method: "GET",
+                    // NSString* urlString = [NSString stringWithFormat:@"http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm?enable=%@&enableId=%@&Page=1",
+                    //                       sender.on ? @"1" : @"0", [self.deviceEntry objectForKey:@"ruleId" ]];
+                    url: `http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm?enable=${(online == "on")?"1":"0"}&enableId=${deviceId}&Page=1`,
+                    headers: {
+                        // [request addValue:@"Basic bG9zZXI6cGFzc3dvcmQ=" forHTTPHeaderField:@"Authorization"];
+                        "Authorization": "Basic bG9zZXI6cGFzc3dvcmQ=",
+                        // [request addValue:@"http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm?Page=1" forHTTPHeaderField:@"Referer"];
+                        "Referer": "http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm?Page=1",
+                        // [request addValue:@"1" forHTTPHeaderField:@"Upgrade-Insecure-Requests"];
+                        "Upgrade-Insecure-Requests": "1",
+                        // [request setValue:@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36" forHTTPHeaderField:@"User-Agent"];
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36" 
+                    }
+                };
+            }
+
+            // Node base64 encoding sample:
+            // > new Buffer("bG9zZXI6cGFzc3dvcmQ=", "base64").toString('ascii')
+            // 'loser:password'
+            // > new Buffer("loser:password").toString("base64")
+            // 'bG9zZXI6cGFzc3dvcmQ='
+
+            function requestDeviceList() {
+                return {
+                    // request.HTTPMethod = @"GET";
+                    // method: "GET",
+                    // NSURL* url = [NSURL URLWithString:@"http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm"];
+                    // url: "http://192.168.0.1/userRpm/AccessCtrlAccessRulesRpm.htm",
+                    headers: {
+                        // [request addValue:@"Basic bG9zZXI6cGFzc3dvcmQ=" forHTTPHeaderField:@"Authorization"];
+                        "Authorization": "Basic bG9zZXI6cGFzc3dvcmQ=",
+                        // [request addValue:@"1" forHTTPHeaderField:@"Upgrade-Insecure-Requests"];
+                        "Upgrade-Insecure-Requests": "1",
+                        // [request addValue:@"http://192.168.0.1/userRpm/MenuRpm.htm" forHTTPHeaderField:@"Referer"];
+                        "Referer": "http://192.168.0.1/userRpm/MenuRpm.htm",
+                        // [request setValue:@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36" forHTTPHeaderField:@"User-Agent"];
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36" 
+                    }
+                };
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+			<nav class="navbar navbar-default">
+			<div class="container">
+                <div class="panel-body">
+                    <span>Internet Switch</span>
+                </div>
+			</div>
+			</nav>
+		</header>
+        <div class="container" ng-controller="switchBoardController">
+            <div ng-repeat="device in deviceList">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <span style="float:left;">{{ device.name }}</span>
+                                <span style="float:right;">
+                                    <input type="radio" name="{{ 'deviceSwitch' + device.id }}" ng-model="device.online" ng-change="switchOn(device.id)" value="on" >on</input>
+                                    <input type="radio" name="{{ 'deviceSwitch' + device.id }}" mg-model="device.online" value="whatever" style="display:none;"></input>
+                                    <input type="radio" name="{{ 'deviceSwitch' + device.id }}" ng-model="device.online" ng-change="switchOff(device.id)" value="off">off</input>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div
+		</div>
+    </body>
+</html>

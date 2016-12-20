@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" "file:///D:/udemy/angular_iswitch/index.html" --args --allow-file-access-from-files --disable-web-security --user-data-dir --incognito
